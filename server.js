@@ -44,7 +44,7 @@ app.use('/users', require('./routes/userRoutes'));
 // Swagger Documentation
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Serve Swagger JSON
 app.get('/swagger.json', (req, res) => {
