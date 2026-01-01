@@ -1,33 +1,39 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
 const {
-    createUser, getUsers, getUser, updateUser, deleteUser
-} = require('../controllers/userController')
+    createUser, 
+    getUsers, 
+    getUser, 
+    updateUser, 
+    deleteUser
+} = require('../controllers/userController');
 
-/**
- * @swagger
- * tags:
- *   name: Users
- *   description: User management
- */
+// Include Swagger documentation files
+require('../swagger/schemas/userSchemas');
+require('../swagger/paths/userPaths');
 
+// Routes - Updated paths (removed /api prefix)
 /**
  * @swagger
  * /users/create:
  *   post:
- *     summary: Create a user
+ *     summary: Create a new user
  *     tags: [Users]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/UserInput'
  *     responses:
  *       201:
- *         description: Created
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  */
-router.post('/create', createUser)
+router.post('/create', createUser);
 
 /**
  * @swagger
@@ -37,9 +43,15 @@ router.post('/create', createUser)
  *     tags: [Users]
  *     responses:
  *       200:
- *         description: OK
+ *         description: List of all users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
  */
-router.get('/', getUsers)
+router.get('/', getUsers);
 
 /**
  * @swagger
@@ -53,11 +65,16 @@ router.get('/', getUsers)
  *         required: true
  *         schema:
  *           type: string
+ *         description: User ID
  *     responses:
  *       200:
- *         description: OK
+ *         description: User details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  */
-router.get('/:id', getUser)
+router.get('/:id', getUser);
 
 /**
  * @swagger
@@ -71,17 +88,22 @@ router.get('/:id', getUser)
  *         required: true
  *         schema:
  *           type: string
+ *         description: User ID
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
+ *             $ref: '#/components/schemas/UserUpdate'
  *     responses:
  *       200:
- *         description: Updated
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  */
-router.put('/:id', updateUser)
+router.put('/:id', updateUser);
 
 /**
  * @swagger
@@ -95,10 +117,19 @@ router.put('/:id', updateUser)
  *         required: true
  *         schema:
  *           type: string
+ *         description: User ID
  *     responses:
  *       200:
- *         description: Deleted
+ *         description: User deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: User Deleted
  */
-router.delete('/:id', deleteUser)
+router.delete('/:id', deleteUser);
 
-module.exports = router
+module.exports = router;
