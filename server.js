@@ -17,35 +17,12 @@ app.use(express.json());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Add request logging middleware
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
-    next();
-});
-
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime()
-    });
-});
-
-// Debug MongoDB endpoint
-app.get('/debug/mongodb', (req, res) => {
-    const mongoose = require('mongoose');
-    const connectionState = mongoose.connection.readyState;
-    const states = {
-        0: 'disconnected',
-        1: 'connected',
-        2: 'connecting',
-        3: 'disconnecting'
-    };
-    
-    res.json({
-        mongodb: states[connectionState] || 'unknown',
-        connectionStringSet: !!process.env.MONGO_URL
     });
 });
 
@@ -61,16 +38,13 @@ app.get('/', (req, res) => {
     res.render('index', { endpoints });
 });
 
-// API Routes - REMOVED /api prefix
+// User routes
 app.use('/users', require('./routes/userRoutes'));
 
 // Swagger Documentation
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-    explorer: true,
-    customSiteTitle: "API Documentation"
-}));
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Serve Swagger JSON
 app.get('/swagger.json', (req, res) => {
@@ -78,17 +52,7 @@ app.get('/swagger.json', (req, res) => {
     res.send(swaggerSpec);
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error('Server error:', err);
-    res.status(500).json({ 
-        success: false,
-        error: 'Internal server error',
-        message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
-    });
-});
-
-// Handle 404 for all routes
+// 404 handler
 app.use((req, res) => {
     res.status(404).json({
         success: false,
@@ -104,10 +68,19 @@ app.use((req, res) => {
     });
 });
 
+// Error handler
+app.use((err, req, res, next) => {
+    console.error('Server error:', err);
+    res.status(500).json({ 
+        success: false,
+        error: 'Internal server error',
+        message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
+    });
+});
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
-    console.log(`Health check: http://localhost:${PORT}/health`);
     console.log(`API Documentation: http://localhost:${PORT}/docs`);
-    console.log(`Debug MongoDB: http://localhost:${PORT}/debug/mongodb`);
+    console.log(`Health check: http://localhost:${PORT}/health`);
 });
