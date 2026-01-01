@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+        }
+
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            font-weight: bold;
+        }
+
+        .api-response {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .method-badge {
+            font-size: 12px;
+            padding: 4px 8px;
+        }
+
+        .method-get {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .method-post {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .method-put {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .method-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .nav-tabs {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">API Dashboard</h1>
+                <p class="lead">Interactive interface to test all API endpoints</p>
+
+                <!-- Navigation Tabs -->
+                <ul class="nav nav-tabs" id="apiTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="users-tab" data-bs-toggle="tab" data-bs-target="#users"
+                            type="button" role="tab">Users API</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="docs-tab" data-bs-toggle="tab" data-bs-target="#docs" type="button"
+                            role="tab">Documentation</button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="apiTabContent">
+
+                    <!-- Users API Tab -->
+                    <div class="tab-pane fade show active" id="users" role="tabpanel">
+
+                        <!-- Create User Card -->
+                        <div class="card">
+                            <div class="card-header d-flex align-items-center">
+                                <span class="badge method-badge method-post me-2">POST</span>
+                                Create New User
+                            </div>
+                            <div class="card-body">
+                                <form id="createUserForm">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="createName" class="form-label">Name</label>
+                                            <input type="text" class="form-control" id="createName" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="createEmail" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="createEmail" required>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Create User</button>
+                                </form>
+                                <div class="api-response mt-3" id="createResponse"></div>
+                            </div>
+                        </div>
+
+                        <!-- Get All Users Card -->
+                        <div class="card">
+                            <div class="card-header d-flex align-items-center">
+                                <span class="badge method-badge method-get me-2">GET</span>
+                                Get All Users
+                            </div>
+                            <div class="card-body">
+                                <button class="btn btn-success" onclick="getAllUsers()">Fetch All Users</button>
+                                <div class="api-response mt-3" id="getAllResponse"></div>
+                            </div>
+                        </div>
+
+                        <!-- Get Single User Card -->
+                        <div class="card">
+                            <div class="card-header d-flex align-items-center">
+                                <span class="badge method-badge method-get me-2">GET</span>
+                                Get User by ID
+                            </div>
+                            <div class="card-body">
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" id="userId" placeholder="Enter User ID">
+                                    <button class="btn btn-outline-secondary" onclick="getUserById()">Get User</button>
+                                </div>
+                                <div class="api-response" id="getUserResponse"></div>
+                            </div>
+                        </div>
+
+                        <!-- Update User Card -->
+                        <div class="card">
+                            <div class="card-header d-flex align-items-center">
+                                <span class="badge method-badge method-put me-2">PUT</span>
+                                Update User
+                            </div>
+                            <div class="card-body">
+                                <form id="updateUserForm">
+                                    <div class="mb-3">
+                                        <label for="updateUserId" class="form-label">User ID</label>
+                                        <input type="text" class="form-control" id="updateUserId" required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="updateName" class="form-label">New Name</label>
+                                            <input type="text" class="form-control" id="updateName">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="updateEmail" class="form-label">New Email</label>
+                                            <input type="email" class="form-control" id="updateEmail">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-warning">Update User</button>
+                                </form>
+                                <div class="api-response mt-3" id="updateResponse"></div>
+                            </div>
+                        </div>
+
+                        <!-- Delete User Card -->
+                        <div class="card">
+                            <div class="card-header d-flex align-items-center">
+                                <span class="badge method-badge method-delete me-2">DELETE</span>
+                                Delete User
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-warning">
+                                    <strong>Warning:</strong> This action cannot be undone.
+                                </div>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" id="deleteUserId"
+                                        placeholder="Enter User ID to delete">
+                                    <button class="btn btn-danger" onclick="deleteUser()">Delete User</button>
+                                </div>
+                                <div class="api-response" id="deleteResponse"></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Documentation Tab -->
+                    <div class="tab-pane fade" id="docs" role="tabpanel">
+                        <div class="card">
+                            <div class="card-header">
+                                API Documentation
+                            </div>
+                            <div class="card-body">
+                                <h5>Available Endpoints</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Method</th>
+                                                <th>Path</th>
+                                                <th>Description</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% endpoints.forEach(function(ep) { %>
+                                                <tr>
+                                                    <td>
+                                                        <% if(ep.method==='GET' ) { %>
+                                                            <span class="badge method-badge method-get">
+                                                                <%= ep.method %>
+                                                            </span>
+                                                            <% } else if(ep.method==='POST' ) { %>
+                                                                <span class="badge method-badge method-post">
+                                                                    <%= ep.method %>
+                                                                </span>
+                                                                <% } else if(ep.method==='PUT' ) { %>
+                                                                    <span class="badge method-badge method-put">
+                                                                        <%= ep.method %>
+                                                                    </span>
+                                                                    <% } else if(ep.method==='DELETE' ) { %>
+                                                                        <span class="badge method-badge method-delete">
+                                                                            <%= ep.method %>
+                                                                        </span>
+                                                                        <% } else { %>
+                                                                            <span class="badge bg-secondary">
+                                                                                <%= ep.method %>
+                                                                            </span>
+                                                                            <% } %>
+                                                    </td>
+                                                    <td><code><%= ep.path %></code></td>
+                                                    <td>
+                                                        <%= ep.description %>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="mt-4">
+                                    <h5>Interactive Documentation</h5>
+                                    <p>For detailed API documentation with interactive testing, visit the Swagger UI:
+                                    </p>
+                                    <a class="btn btn-info" href="/api-docs" target="_blank">
+                                        Open Swagger Documentation
+                                    </a>
+                                </div>
+
+                                <div class="mt-4">
+                                    <h5>How to Use</h5>
+                                    <ol>
+                                        <li>Use the "Create New User" form to add users</li>
+                                        <li>Click "Fetch All Users" to see all existing users</li>
+                                        <li>Enter a User ID to retrieve, update, or delete specific users</li>
+                                        <li>Check the response area below each form for results</li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript for API Calls -->
+    <script>
+        const API_BASE = '/users';
+
+        // Helper function to display responses
+        function displayResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            let content = '';
+
+            if (isError) {
+                content = `<span class="text-danger">Error: ${data.message || data}</span>`;
+            } else {
+                try {
+                    content = JSON.stringify(data, null, 2);
+                } catch (e) {
+                    content = data;
+                }
+            }
+
+            element.innerHTML = `<pre>${content}</pre>`;
+            element.style.display = 'block';
+        }
+
+        // Create User
+        document.getElementById('createUserForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const userData = {
+                name: document.getElementById('createName').value,
+                email: document.getElementById('createEmail').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+                displayResponse('createResponse', data);
+
+                // Clear form
+                document.getElementById('createUserForm').reset();
+            } catch (error) {
+                displayResponse('createResponse', error, true);
+            }
+        });
+
+        // Get All Users
+        async function getAllUsers() {
+            try {
+                const response = await fetch(API_BASE);
+                const data = await response.json();
+                displayResponse('getAllResponse', data);
+            } catch (error) {
+                displayResponse('getAllResponse', error, true);
+            }
+        }
+
+        // Get User by ID
+        async function getUserById() {
+            const userId = document.getElementById('userId').value.trim();
+            if (!userId) {
+                displayResponse('getUserResponse', 'Please enter a User ID', true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/${userId}`);
+                if (!response.ok) throw new Error('User not found');
+                const data = await response.json();
+                displayResponse('getUserResponse', data);
+            } catch (error) {
+                displayResponse('getUserResponse', error, true);
+            }
+        }
+
+        // Update User
+        document.getElementById('updateUserForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const userId = document.getElementById('updateUserId').value.trim();
+            if (!userId) {
+                displayResponse('updateResponse', 'Please enter a User ID', true);
+                return;
+            }
+
+            const updateData = {};
+            const name = document.getElementById('updateName').value.trim();
+            const email = document.getElementById('updateEmail').value.trim();
+
+            if (name) updateData.name = name;
+            if (email) updateData.email = email;
+
+            if (Object.keys(updateData).length === 0) {
+                displayResponse('updateResponse', 'Please provide at least one field to update', true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                const data = await response.json();
+                displayResponse('updateResponse', data);
+
+                // Clear form
+                document.getElementById('updateUserForm').reset();
+            } catch (error) {
+                displayResponse('updateResponse', error, true);
+            }
+        });
+
+        // Delete User
+        async function deleteUser() {
+            const userId = document.getElementById('deleteUserId').value.trim();
+            if (!userId) {
+                displayResponse('deleteResponse', 'Please enter a User ID', true);
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to delete user with ID: ${userId}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/${userId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+                displayResponse('deleteResponse', data);
+
+                // Clear input
+                document.getElementById('deleteUserId').value = '';
+            } catch (error) {
+                displayResponse('deleteResponse', error, true);
+            }
+        }
+
+        // Auto-fetch all users on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            getAllUsers();
+        });
+    </script>
+</body>
+
+</html>

@@ -13,7 +13,7 @@ const {
 
 /**
  * @swagger
- * /api/users/create:
+ * /users/create:
  *   post:
  *     summary: Create a user
  *     tags: [Users]
@@ -31,7 +31,7 @@ router.post('/create', createUser)
 
 /**
  * @swagger
- * /api/users:
+ * /users:
  *   get:
  *     summary: Get all users
  *     tags: [Users]
@@ -43,7 +43,7 @@ router.get('/', getUsers)
 
 /**
  * @swagger
- * /api/users/{id}:
+ * /users/{id}:
  *   get:
  *     summary: Get a user by ID
  *     tags: [Users]
@@ -61,7 +61,7 @@ router.get('/:id', getUser)
 
 /**
  * @swagger
- * /api/users/{id}:
+ * /users/{id}:
  *   put:
  *     summary: Update a user
  *     tags: [Users]
@@ -85,7 +85,7 @@ router.put('/:id', updateUser)
 
 /**
  * @swagger
- * /api/users/{id}:
+ * /users/{id}:
  *   delete:
  *     summary: Delete a user
  *     tags: [Users]
