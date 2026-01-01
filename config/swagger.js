@@ -1,4 +1,4 @@
-const swaggerJSDoc = require('swagger-jsdoc')
+const swaggerJSDoc = require('swagger-jsdoc');
 
 const options = {
     definition: {
@@ -6,17 +6,39 @@ const options = {
         info: {
             title: 'Node API',
             version: '1.0.0',
-            description: 'API documentation for Node API'
+            description: 'API documentation for Node API',
+            contact: {
+                name: 'API Support'
+            }
         },
         servers: [
             {
-                url: 'http://localhost:4000'
+                url: 'http://localhost:4000',
+                description: 'Development server'
+            },
+            {
+                url: 'https://your-app.onrender.com', // Update with your Render URL
+                description: 'Production server'
+            }
+        ],
+        components: {
+            schemas: {},
+            securitySchemes: {}
+        },
+        tags: [
+            {
+                name: 'Users',
+                description: 'User management operations'
             }
         ]
     },
-    apis: ['./routes/*.js', './controllers/*.js', './models/*.js']
-}
+    apis: [
+        './swagger/schemas/*.js',
+        './swagger/paths/*.js',
+        './routes/*.js'
+    ]
+};
 
-const swaggerSpec = swaggerJSDoc(options)
+const swaggerSpec = swaggerJSDoc(options);
 
-module.exports = swaggerSpec
+module.exports = swaggerSpec;
