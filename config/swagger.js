@@ -6,10 +6,7 @@ const options = {
         info: {
             title: 'Node API',
             version: '1.0.0',
-            description: 'API documentation for Node API',
-            contact: {
-                name: 'API Support'
-            }
+            description: 'API documentation for Node API'
         },
         servers: [
             {
@@ -17,26 +14,13 @@ const options = {
                 description: 'Development server'
             },
             {
-                url: 'https://your-app.onrender.com', // Update with your Render URL
+                url: 'https://your-app.onrender.com',
                 description: 'Production server'
-            }
-        ],
-        components: {
-            schemas: {},
-            securitySchemes: {}
-        },
-        tags: [
-            {
-                name: 'Users',
-                description: 'User management operations'
             }
         ]
     },
-    apis: [
-        './swagger/schemas/*.js',
-        './swagger/paths/*.js',
-        './routes/*.js'
-    ]
+    // Only look for documentation in route files
+    apis: ['./routes/*.js']
 };
 
 const swaggerSpec = swaggerJSDoc(options);
