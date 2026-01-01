@@ -275,7 +275,7 @@
     <!-- JavaScript for API Calls -->
 <script>
     // Get the base URL dynamically for Render deployment
-    const API_BASE = window.location.origin + '/api/users';
+    const API_BASE = window.location.origin + '/users';
     
     // Helper function to display responses
     function displayResponse(elementId, data, isError = false) {
@@ -286,9 +286,9 @@
             content = `<span class="text-danger">Error: ${data.message || data}</span>`;
         } else {
             try {
-                // Handle HTML responses (like 404 pages)
+                // Handle HTML responses
                 if (typeof data === 'string' && data.startsWith('<!DOCTYPE')) {
-                    content = `<span class="text-warning">Received HTML instead of JSON. API might be down.</span>`;
+                    content = `<span class="text-warning">Received HTML instead of JSON. Check API endpoint.</span>`;
                 } else {
                     content = JSON.stringify(data, null, 2);
                 }
@@ -334,7 +334,6 @@
                 body: JSON.stringify(userData)
             });
             
-            // Check if response is JSON
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
                 const data = await response.json();
@@ -347,7 +346,6 @@
                 displayResponse('createResponse', text, true);
             }
             
-            // Clear form
             document.getElementById('createUserForm').reset();
         } catch (error) {
             displayResponse('createResponse', error.message || error, true);
@@ -445,7 +443,6 @@
                 displayResponse('updateResponse', text, true);
             }
             
-            // Clear form
             document.getElementById('updateUserForm').reset();
         } catch (error) {
             displayResponse('updateResponse', error.message || error, true);
@@ -481,7 +478,6 @@
                 displayResponse('deleteResponse', text, true);
             }
             
-            // Clear input
             document.getElementById('deleteUserId').value = '';
         } catch (error) {
             displayResponse('deleteResponse', error.message || error, true);
@@ -490,15 +486,12 @@
     
     // Initialize when page loads
     document.addEventListener('DOMContentLoaded', function() {
-        // Test API connection on load
         testApiConnection().then(isConnected => {
             if (!isConnected) {
                 console.warn('API might not be available');
-                // Show a warning if needed
             }
         });
         
-        // Try to fetch users
         getAllUsers();
     });
 </script>
