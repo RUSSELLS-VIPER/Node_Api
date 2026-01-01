@@ -273,158 +273,235 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- JavaScript for API Calls -->
-    <script>
-        const API_BASE = '/users';
-
-        // Helper function to display responses
-        function displayResponse(elementId, data, isError = false) {
-            const element = document.getElementById(elementId);
-            let content = '';
-
-            if (isError) {
-                content = `<span class="text-danger">Error: ${data.message || data}</span>`;
-            } else {
-                try {
+<script>
+    // Get the base URL dynamically for Render deployment
+    const API_BASE = window.location.origin + '/api/users';
+    
+    // Helper function to display responses
+    function displayResponse(elementId, data, isError = false) {
+        const element = document.getElementById(elementId);
+        let content = '';
+        
+        if (isError) {
+            content = `<span class="text-danger">Error: ${data.message || data}</span>`;
+        } else {
+            try {
+                // Handle HTML responses (like 404 pages)
+                if (typeof data === 'string' && data.startsWith('<!DOCTYPE')) {
+                    content = `<span class="text-warning">Received HTML instead of JSON. API might be down.</span>`;
+                } else {
                     content = JSON.stringify(data, null, 2);
-                } catch (e) {
-                    content = data;
                 }
+            } catch (e) {
+                content = String(data);
             }
-
-            element.innerHTML = `<pre>${content}</pre>`;
-            element.style.display = 'block';
         }
-
-        // Create User
-        document.getElementById('createUserForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const userData = {
-                name: document.getElementById('createName').value,
-                email: document.getElementById('createEmail').value
-            };
-
-            try {
-                const response = await fetch(`${API_BASE}/create`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(userData)
-                });
-
+        
+        element.innerHTML = `<pre>${content}</pre>`;
+        element.style.display = 'block';
+    }
+    
+    // Test API connection
+    async function testApiConnection() {
+        try {
+            const response = await fetch(API_BASE);
+            if (response.ok) {
+                console.log('API connection successful');
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error('API connection failed:', error);
+            return false;
+        }
+    }
+    
+    // Create User
+    document.getElementById('createUserForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const userData = {
+            name: document.getElementById('createName').value,
+            email: document.getElementById('createEmail').value
+        };
+        
+        try {
+            const response = await fetch(`${API_BASE}/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
+            });
+            
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
                 const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || `HTTP ${response.status}`);
+                }
                 displayResponse('createResponse', data);
-
-                // Clear form
-                document.getElementById('createUserForm').reset();
-            } catch (error) {
-                displayResponse('createResponse', error, true);
+            } else {
+                const text = await response.text();
+                displayResponse('createResponse', text, true);
             }
-        });
-
-        // Get All Users
-        async function getAllUsers() {
-            try {
-                const response = await fetch(API_BASE);
+            
+            // Clear form
+            document.getElementById('createUserForm').reset();
+        } catch (error) {
+            displayResponse('createResponse', error.message || error, true);
+        }
+    });
+    
+    // Get All Users
+    async function getAllUsers() {
+        try {
+            const response = await fetch(API_BASE);
+            const contentType = response.headers.get('content-type');
+            
+            if (contentType && contentType.includes('application/json')) {
                 const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || `HTTP ${response.status}`);
+                }
                 displayResponse('getAllResponse', data);
-            } catch (error) {
-                displayResponse('getAllResponse', error, true);
+            } else {
+                const text = await response.text();
+                displayResponse('getAllResponse', text, true);
             }
+        } catch (error) {
+            displayResponse('getAllResponse', error.message || error, true);
         }
-
-        // Get User by ID
-        async function getUserById() {
-            const userId = document.getElementById('userId').value.trim();
-            if (!userId) {
-                displayResponse('getUserResponse', 'Please enter a User ID', true);
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE}/${userId}`);
-                if (!response.ok) throw new Error('User not found');
+    }
+    
+    // Get User by ID
+    async function getUserById() {
+        const userId = document.getElementById('userId').value.trim();
+        if (!userId) {
+            displayResponse('getUserResponse', 'Please enter a User ID', true);
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${API_BASE}/${userId}`);
+            const contentType = response.headers.get('content-type');
+            
+            if (contentType && contentType.includes('application/json')) {
                 const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || `HTTP ${response.status}`);
+                }
                 displayResponse('getUserResponse', data);
-            } catch (error) {
-                displayResponse('getUserResponse', error, true);
+            } else {
+                const text = await response.text();
+                displayResponse('getUserResponse', text, true);
             }
+        } catch (error) {
+            displayResponse('getUserResponse', error.message || error, true);
         }
-
-        // Update User
-        document.getElementById('updateUserForm').addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const userId = document.getElementById('updateUserId').value.trim();
-            if (!userId) {
-                displayResponse('updateResponse', 'Please enter a User ID', true);
-                return;
-            }
-
-            const updateData = {};
-            const name = document.getElementById('updateName').value.trim();
-            const email = document.getElementById('updateEmail').value.trim();
-
-            if (name) updateData.name = name;
-            if (email) updateData.email = email;
-
-            if (Object.keys(updateData).length === 0) {
-                displayResponse('updateResponse', 'Please provide at least one field to update', true);
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE}/${userId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(updateData)
-                });
-
+    }
+    
+    // Update User
+    document.getElementById('updateUserForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const userId = document.getElementById('updateUserId').value.trim();
+        if (!userId) {
+            displayResponse('updateResponse', 'Please enter a User ID', true);
+            return;
+        }
+        
+        const updateData = {};
+        const name = document.getElementById('updateName').value.trim();
+        const email = document.getElementById('updateEmail').value.trim();
+        
+        if (name) updateData.name = name;
+        if (email) updateData.email = email;
+        
+        if (Object.keys(updateData).length === 0) {
+            displayResponse('updateResponse', 'Please provide at least one field to update', true);
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${API_BASE}/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updateData)
+            });
+            
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
                 const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || `HTTP ${response.status}`);
+                }
                 displayResponse('updateResponse', data);
-
-                // Clear form
-                document.getElementById('updateUserForm').reset();
-            } catch (error) {
-                displayResponse('updateResponse', error, true);
+            } else {
+                const text = await response.text();
+                displayResponse('updateResponse', text, true);
             }
-        });
-
-        // Delete User
-        async function deleteUser() {
-            const userId = document.getElementById('deleteUserId').value.trim();
-            if (!userId) {
-                displayResponse('deleteResponse', 'Please enter a User ID', true);
-                return;
-            }
-
-            if (!confirm(`Are you sure you want to delete user with ID: ${userId}?`)) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`${API_BASE}/${userId}`, {
-                    method: 'DELETE'
-                });
-
-                const data = await response.json();
-                displayResponse('deleteResponse', data);
-
-                // Clear input
-                document.getElementById('deleteUserId').value = '';
-            } catch (error) {
-                displayResponse('deleteResponse', error, true);
-            }
+            
+            // Clear form
+            document.getElementById('updateUserForm').reset();
+        } catch (error) {
+            displayResponse('updateResponse', error.message || error, true);
         }
-
-        // Auto-fetch all users on page load
-        document.addEventListener('DOMContentLoaded', function () {
-            getAllUsers();
+    });
+    
+    // Delete User
+    async function deleteUser() {
+        const userId = document.getElementById('deleteUserId').value.trim();
+        if (!userId) {
+            displayResponse('deleteResponse', 'Please enter a User ID', true);
+            return;
+        }
+        
+        if (!confirm(`Are you sure you want to delete user with ID: ${userId}?`)) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${API_BASE}/${userId}`, {
+                method: 'DELETE'
+            });
+            
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || `HTTP ${response.status}`);
+                }
+                displayResponse('deleteResponse', data);
+            } else {
+                const text = await response.text();
+                displayResponse('deleteResponse', text, true);
+            }
+            
+            // Clear input
+            document.getElementById('deleteUserId').value = '';
+        } catch (error) {
+            displayResponse('deleteResponse', error.message || error, true);
+        }
+    }
+    
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        // Test API connection on load
+        testApiConnection().then(isConnected => {
+            if (!isConnected) {
+                console.warn('API might not be available');
+                // Show a warning if needed
+            }
         });
-    </script>
+        
+        // Try to fetch users
+        getAllUsers();
+    });
+</script>
 </body>
 
 </html>
